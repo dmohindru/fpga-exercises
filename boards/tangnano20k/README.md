@@ -6,7 +6,7 @@ Basic steps to setup development for tang nano 20k
 
 1. Setup VS code plugins for fpga development. Follow Lushay Labs tang nano 9K tutorial.
 2. Download latest [oss-cad-suite](https://github.com/YosysHQ/oss-cad-suite-build) toolchain and setup in $HOME/opt/eda directory.
-3. Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader) either through ubuntu package manager apt, snap.
+3. Install [openFPGALoader](https://github.com/trabucayre/openFPGALoader) either through ubuntu package manager apt, snap or by compiling from source.
 4. Set user permission to use openFPGALoader as normal user.
 5. Set **oss-cad-suite** toolchain path in Lushay vscode plugin installed in step 1.
 6. Lushay vscode plugin by default targets tangnano9K board. This plugin can be easily adapted to tangnano20K by adding file `projectName.lushay.json` with following content to root of your project
