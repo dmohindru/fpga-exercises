@@ -1,4 +1,4 @@
-module top
+module counter
 (
     input clk,
     output [5:0] led
