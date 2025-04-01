@@ -43,12 +43,29 @@
   - tangnano4k : -- find name from appropriate source --
   - tangnano1k : -- find name from appropriate source --
 
-- Check if project's constraint file is present in directory board/${BOARD}/${PROJECT_NAME}.cst. If not fail with descriptive message of "board/${BOARD}/${PROJECT_NAME}.cst must be present for place and route stage"
+- Constraints file detection logic
+
+  - Check if project variable CONSTRAINT_FILE is defined then cst file CST_FILE_PATH should be board/${BOARD}/${CONSTRAINT_FILE}.cst
+  - otherwise CST_FILE_PATH should be board/${BOARD}/${PROJECT_NAME}.cst
+
+- Check if project's constraint file $CST_FILE_PATH is present. If not fail with descriptive message of "board/${BOARD}/${PROJECT_NAME}.cst must be present for place and route stage"
+
+- Validate that if build/${BOARD}/${PROJECT_NAME}.json file exists from previous synthesis stage which is supposed to input for next "pnr" stage.
+
+- Clock frequency detection logic
+
+  - Check if project variable FREQ exists then it should act as input to pnr stage
+  - Otherwise set default value of FREQ=27
+
 - Add custom target "pnr" for place and route with command
-  $OSS_CAD_HOME/nextpnr-himbaechel --json build/BOARD/PROJECT_NAME.json --write build/${BOARD}/${PROJECT_NAME}_routed.json --device BOARD_DEVICE_NAME[$BOARD] --vopt cst=board/${BOARD}/${PROJECT_NAME}.cst --vopt family=BOARD_FAMILY_NAME[$BOARD] --vopt freq=27 --report build/${BOARD}/${PROJECT_NAME}\_usage.json
+  $OSS_CAD_HOME/nextpnr-himbaechel --json build/BOARD/PROJECT_NAME.json --write build/${BOARD}/${PROJECT_NAME}_routed.json --device BOARD_DEVICE_NAME[$BOARD] --vopt cst=board/${BOARD}/${PROJECT_NAME}.cst --vopt family=BOARD_FAMILY_NAME[$BOARD] --vopt freq=${FREQ} --report build/${BOARD}/${PROJECT_NAME}\_usage.json
+
+- Validate that if build/${BOARD}/${PROJECT_NAME}\_routed.json file exists from previous pnr stage which is supposed to input for next "bitstream" stage.
 
 - Add custom target "bitstream" for bitstream generation with command
   $OSS_CAD_HOME/gowin_pack -d BOARD_FAMILY_NAME[$BOARD] -o build/${BOARD}/${PROJECT_NAME}.fs build/${BOARD}/${PROJECT_NAME}\_routed.json
+
+- Validate that if build/${BOARD}/${PROJECT_NAME}.fs file exists from previous bitstream stage which is supposed to input for next "upload_flash" or "upload_sram" stage.
 
 - Add custom target "upload_flash" with command
   openFPGALoader -b $BOARD_NAME -f build/${BOARD}/${PROJECT_NAME}.fs
