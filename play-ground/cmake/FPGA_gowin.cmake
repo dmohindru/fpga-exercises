@@ -12,9 +12,9 @@ set(USAGE_REPORT "${BUILD_DIR}/${PROJECT_NAME}_usage.json")
 
 # Detect constraints file
 if(DEFINED CONSTRAINT_FILE AND NOT "${CONSTRAINT_FILE}" STREQUAL "")
-    set(CST_FILE_PATH "${CMAKE_SOURCE_DIR}/board/${BOARD}/${CONSTRAINT_FILE}.cst")
+    set(CST_FILE_PATH "${CMAKE_SOURCE_DIR}/boards/${BOARD}/${CONSTRAINT_FILE}.cst")
 else()
-    set(CST_FILE_PATH "${CMAKE_SOURCE_DIR}/board/${BOARD}/${PROJECT_NAME}.cst")
+    set(CST_FILE_PATH "${CMAKE_SOURCE_DIR}/boards/${BOARD}/${PROJECT_NAME}.cst")
 endif()
 
 
