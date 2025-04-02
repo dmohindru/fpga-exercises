@@ -5,6 +5,11 @@ project(FPGA_BuildSystem)
 include(cmake/Utils.cmake)
 include(cmake/Boards.cmake)
 
+# Ensure necessary environment variable is set
+if(NOT DEFINED ENV{OSS_CAD_HOME})
+    message(FATAL_ERROR "OSS_CAD_HOME environment variable must be set to the OSS CAD tools path")
+endif()
+
 # Set default values
 set(FPGA_FAMILY "" CACHE STRING "FPGA family: gowin or ice40 (must be set)")
 set(BOARD "" CACHE STRING "Target FPGA board (must be set)")
@@ -40,8 +45,8 @@ endif()
 # Load FPGA-specific build logic
 if(FPGA_FAMILY STREQUAL "gowin")
     include(cmake/FPGA_gowin.cmake)
-elif(FPGA_FAMILY STREQUAL "ice40")
-    include(cmake/FPGA_ice40.cmake)
+# elif(FPGA_FAMILY STREQUAL "ice40")
+#     include(cmake/FPGA_ice40.cmake)
 else()
     message(FATAL_ERROR "Unsupported FPGA family: ${FPGA_FAMILY}")
 endif()
