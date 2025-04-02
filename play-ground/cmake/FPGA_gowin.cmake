@@ -35,14 +35,20 @@ endforeach()
 file(APPEND ${SYNTH_SCRIPT} "synth_gowin -top ${PROJECT_NAME} -json ${JSON_FILE}\n")
 
 # Add synthesis target
-add_custom_target(synthesize
+# Synthesis: Generates JSON file
+add_custom_command(
+    OUTPUT ${JSON_FILE}
     COMMAND $ENV{OSS_CAD_HOME}/yosys -s ${SYNTH_SCRIPT}
+    DEPENDS ${VERILOG_FILES} ${SYNTH_SCRIPT}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running Yosys synthesis for Gowin FPGA"
 )
 
-# Add place & route target
-add_custom_target(pnr
+add_custom_target(synthesize DEPENDS ${JSON_FILE})
+
+# PNR: Generates Routed JSON file
+add_custom_command(
+    OUTPUT ${ROUTED_JSON_FILE} ${USAGE_REPORT}
     COMMAND $ENV{OSS_CAD_HOME}/nextpnr-himbaechel 
         --json ${JSON_FILE} 
         --write ${ROUTED_JSON_FILE} 
@@ -51,18 +57,23 @@ add_custom_target(pnr
         --vopt family=${FAMILY_NAME} 
         --vopt freq=${FREQ} 
         --report ${USAGE_REPORT}
-    DEPENDS synthesize
+    DEPENDS ${JSON_FILE}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running nextpnr for Gowin FPGA"
 )
 
-# Add bitstream generation target
-add_custom_target(bitstream
+add_custom_target(pnr DEPENDS ${ROUTED_JSON_FILE})
+
+# Bitstream Generation: Outputs Bitstream file
+add_custom_command(
+    OUTPUT ${BITSTREAM_FILE}
     COMMAND $ENV{OSS_CAD_HOME}/gowin_pack -d ${FAMILY_NAME} -o ${BITSTREAM_FILE} ${ROUTED_JSON_FILE}
-    DEPENDS pnr
+    DEPENDS ${ROUTED_JSON_FILE}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Generating bitstream for Gowin FPGA"
 )
+
+add_custom_target(bitstream DEPENDS ${BITSTREAM_FILE})
 
 # Include upload targets
 include(cmake/FPGA_upload.cmake)

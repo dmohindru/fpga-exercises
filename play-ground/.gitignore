@@ -220,3 +220,6 @@ __pycache__/
 
 # Ignore user-specific workspace settings
 .vscode/*.code-workspace
+
+# Cmake build files
+build/
