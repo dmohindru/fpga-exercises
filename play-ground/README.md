@@ -9,3 +9,5 @@ This folder will serve as a practice playground to come up with folder structure
 - how are verilog modules resolution works
 - constraints file component IO, IOPORT etc
 - what is tangnano20K sdc file (gowin projects)
+
+### How to use this build system
