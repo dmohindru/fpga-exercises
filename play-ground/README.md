@@ -10,7 +10,7 @@ This folder will serve as a practice playground to come up with folder structure
 - constraints file component IO, IOPORT etc
 - what is tangnano20K sdc file (gowin projects)
 
-### How to use this build system
+## How to use this build system
 
 This [cmake](https://cmake.org/) build script is a modest attempt to automate fpga development workflow in ide and platform agnostics way. Under the hood it utilizes [oss-cad-suite](https://github.com/YosysHQ/oss-cad-suite-build) for synthesis, pnr (place and route) and bit stream generation. And utilized [open fpga loader](https://github.com/trabucayre/openFPGALoader) to program an actual fpga device.
 
@@ -21,26 +21,30 @@ This build script will be able to support fpga device that are supported by oss-
 - Board constraints file goes in a folder structure of their own
 - Build artifacts goes into their own folder structure
 
-**HDL source code folder structure**
+### HDL source code folder structure
+
 This folder will serve the purpose of holding platform agnostics Verilog and VHDL source code(currently only verilog is supported). Folder structure is
 
 - src/main/verilog (for verilog source)
 - src/main/vhdl (for VHDL source)
 
-**Test bench code folder structure**
+### Test bench code folder structure
+
 This folder will serve the purpose of holding all the test bench source code so that main source code folder don't get cluttered with test code. Folder structure is
 
 - src/test/verilog (for verilog test bench)
 - src/test/vhdl (for VHDL test bench)
 
-**Constrains file folder structure**
+### Constrains file folder structure
+
 This folder will serve the purpose of holding platform specific constraints file. So essentially a same design can be synthesis, pnr, bit stream and program to different devices. `And the the very code idea behind this build system`. Folder structure is
 
 - board/board-name-1/board-specific-constraint-file
 - board/board-name-2/board-specific-constraint-file
 - board/board-name-3/board-specific-constraint-file
 
-**Build folder structure**
+### Build folder structure
+
 This build folder structure will be managed by cmake build system. I would have all the necessary file created by cmake (not cover in this wiki). However some folders and file are important for debugging process. `build` folder will contain single folder by a board name (can be many but by different board name) and will contain following files example file are for tangnano20k
 
 - build/tangnano20k/tangnano20k_synth.ys --> yosys script file for synthesis input
@@ -49,3 +53,88 @@ This build folder structure will be managed by cmake build system. I would have 
 - build/tangnano20k/project_name_usage.json --> usage report for fpga device
 - build/tangnano20k/project_name_usage.html --> html version of fpga device usage (to be developed)
 - build/tangnano20k/project_name.fs --> bit stream file output of bit stream stage and serving as input for openFPGALoader for programming a device
+
+### List of commands to bootstrap a project and development steps
+
+Refer to this [file](./COMMANDS.md) for detailed explanation of each commands.
+
+**1. Copy a template folder containing cmake script files and starter project folder structure**
+
+```sh
+cp path_to_starter_project desired_project_folder
+```
+
+**2. Initialize your project folder**
+
+```sh
+cd example-project
+cmake -S . -B build -DFPGA_FAMILY=gowin -DBOARD=tangnano20k -DPROJECT_NAME=sample
+```
+
+after initializing the project make sure you have a top module verilog file named `sample.v` at folder location
+
+> src/main/verilog/sample.v
+
+and top level module as
+
+```verilog
+module sample;
+    // Module body
+endmodule
+```
+
+Also ensure that you have a constraints file named sample.cst (extension can be specific to fpga family) at folder location
+
+> boards/tangnano20k/sample.cst
+
+If you wish to have a different name for your constraint file you could do that by initializing the project as
+
+```sh
+cmake -S . -B build -DFPGA_FAMILY=gowin -DBOARD=tangnano20k -DPROJECT_NAME=sample -DCONSTRAINT_FILE=other
+```
+
+then create a constraint file `other.cst` (again extension can be specific to fpga family) at folder location
+
+> boards/tangnano20k/other.cst
+
+All in all for the build script to find the desired verilog source and constraint files it has to follow certain naming convention configured during project initialization step.
+
+**3. Build Synthesis target**
+
+```sh
+cmake --build build --target synthesize
+```
+
+**4. Build PnR target**
+
+```sh
+cmake --build build --target pnr
+```
+
+**5. Build bit stream target**
+
+```sh
+cmake --build build --target bitstream
+```
+
+**6. Upload bit stream to FPGA SRAM**
+
+```sh
+cmake --build build --target upload_sram
+```
+
+**7. Upload bit stream to FPGA flash**
+
+```sh
+cmake --build build --target upload_flash
+```
+
+### WIP
+
+Command to run test bench in under development so that with a single command you can run all your test bench something like
+
+```sh
+cmake --build --target test
+```
+
+> :heart_eyes: Good to have IDE integration for test running (VSCode initially to start with)
